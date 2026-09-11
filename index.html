@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Splitly | Free Bill Splitting & Group Expense Tracker</title>
+  <meta name="title" content="Split Expenses Easily | Free Bill Splitting & Group Expense Tracker">
+  <meta name="description" content="Easily split bills, track shared group expenses, and settle balances with friends, roommates, or travel partners. Fast, transparent, and hassle-free.">
+  <meta name="keywords" content="split expense, bill splitter, shared expenses, group expense tracker, split rent, roommate expenses, trip expense calculator, settle balances">
+  <link rel="canonical" href="https://splitly.com" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="top-navbar">
+    <div class="nav-container">
+      <div class="brand-block">
+        <h1 class="brand-title">SPLITLY</h1>
+      </div>
+
+      <!-- Nav Tabs -->
+      <nav class="nav-tabs">
+        <button type="button" class="nav-tab active" data-target="view-dashboard">Dashboard</button>
+        <button type="button" class="nav-tab" data-target="view-expenses">Expenses</button>
+        <button type="button" class="nav-tab" data-target="view-roommates">Roommates</button>
+        <button type="button" class="nav-tab" data-target="view-settings">Settings</button>
+      </nav>
+
+      <!-- Stats -->
+      <div class="nav-actions">
+        <div class="nav-stat-pill">
+          <span class="stat-dot"></span>
+          <span id="nav-active-summary">0 People • 0 Expenses</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    
+    <!-- DASHBOARD -->
+    <div id="view-dashboard" class="view-section active">
+      <!-- Top Grid -->
+      <div class="top-grid">
+        <!-- People -->
+        <section class="card">
+          <div class="card-header">
+            <h2 class="card-title">People & Move-in Dates</h2>
+            <span class="badge people-count-badge">0 people</span>
+          </div>
+          
+          <div class="card-body-column">
+            <div class="people-empty empty-state">
+              <span>Add people to start splitting.</span>
+            </div>
+            <div class="people-chips-container people-chips" style="display: none;"></div>
+          </div>
+
+          <form class="add-person-form">
+            <div class="form-group">
+              <input type="text" class="person-name-input" placeholder="Roommate name" required />
+            </div>
+            <div class="form-group">
+              <label>Move-in / Rental Entry Date</label>
+              <input type="date" class="person-movein-input" required />
+            </div>
+            <button type="submit" class="btn-lime btn-full">+ Add Roommate</button>
+          </form>
+        </section>
+
+        <!-- Glance -->
+        <section class="card">
+          <div class="card-header">
+            <h2 class="card-title">At a glance</h2>
+            <span class="badge badge-live">Live</span>
+          </div>
+
+          <div class="balance-empty empty-state">
+            <span>Balances will appear here.</span>
+          </div>
+          <ul class="balance-list-container dynamic-list" style="display: none;"></ul>
+        </section>
+
+        <!-- Settle up -->
+        <section class="card">
+          <div class="card-header">
+            <h2 class="card-title">Settle up</h2>
+            <span class="badge settlement-count-badge">0 payments</span>
+          </div>
+          <p class="subtitle">The fewest payments needed to make everyone square.</p>
+
+          <div class="settlement-empty empty-state">
+            <span>Add an expense to see the plan.</span>
+          </div>
+          <div class="settlement-list-container dynamic-list" style="display: none;"></div>
+        </section>
+      </div>
+
+      <!-- Bottom Grid -->
+      <div class="bottom-grid" style="margin-top: 1.5rem;">
+        
+        <!-- Add an expense -->
+        <section class="card">
+          <div class="card-header">
+            <h2 class="card-title">Add an expense</h2>
+          </div>
+
+          <form class="expense-entry-form">
+            <div class="form-group">
+              <label>Description</label>
+              <input type="text" class="expense-desc-input" placeholder="Rent, Wi-Fi, Groceries..." required />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Amount</label>
+                <input type="number" class="expense-amount-input" placeholder="0.00" step="0.01" min="0.01" required />
+              </div>
+
+              <div class="form-group">
+                <label>Paid by</label>
+                <select class="expense-payer-select" required disabled>
+                  <option value="" disabled selected>Add people first</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Rental / Expense Date</label>
+                <input type="date" class="expense-date-input" required />
+              </div>
+              <div class="form-group">
+                <label>Split Type</label>
+                <select class="split-type-select">
+                  <option value="equal" selected>Equal (=)</option>
+                  <option value="unequal">Unequal (Exact Amounts)</option>
+                  <option value="percentage">Percentage (%)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Split Between -->
+            <div class="form-group">
+              <div class="split-options-header">
+                <label>Split between</label>
+                <button type="button" class="split-toggle-btn toggle-all-split" style="display: none;">Select all</button>
+              </div>
+              
+              <div class="split-selector-box">
+                <div class="split-empty-msg split-empty-indicator">
+                  Add people above to split expenses
+                </div>
+                <div class="split-checkbox-group split-checkboxes-target" style="display: none;"></div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-lime btn-full">Add expense &rarr;</button>
+          </form>
+        </section>
+
+        <!-- Expense history -->
+        <section class="card">
+          <div class="card-header">
+            <h2 class="card-title">Expense history</h2>
+            <span class="badge expense-count-badge">0 logged</span>
+          </div>
+
+          <div class="history-empty empty-state">
+            <span>No expenses yet — make the first move.</span>
+          </div>
+          <ul class="history-list-container dynamic-list" style="display: none;"></ul>
+        </section>
+      </div>
+    </div>
+
+    <!-- EXPENSES VIEW -->
+    <div id="view-expenses" class="view-section">
+      <div class="bottom-grid">
+        <section class="card">
+          <div class="card-header">
+            <h2 class="card-title">Add an expense</h2>
+          </div>
+
+          <form class="expense-entry-form">
+            <div class="form-group">
+              <label>Description</label>
+              <input type="text" class="expense-desc-input" placeholder="Rent, Groceries, Wi-Fi..." required />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Amount</label>
+                <input type="number" class="expense-amount-input" placeholder="0.00" step="0.01" min="0.01" required />
+              </div>
+
+              <div class="form-group">
+                <label>Paid by</label>
+                <select class="expense-payer-select" required disabled>
+                  <option value="" disabled selected>Add people first</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Rental / Expense Date</label>
+                <input type="date" class="expense-date-input" required />
+              </div>
+              <div class="form-group">
+                <label>Split Type</label>
+                <select class="split-type-select">
+                  <option value="equal" selected>Equal (=)</option>
+                  <option value="unequal">Unequal (Exact Amounts)</option>
+                  <option value="percentage">Percentage (%)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="split-options-header">
+                <label>Split between</label>
+                <button type="button" class="split-toggle-btn toggle-all-split" style="display: none;">Select all</button>
+              </div>
+              
+              <div class="split-selector-box">
+                <div class="split-empty-msg split-empty-indicator">
+                  Add people above to split expenses
+                </div>
+                <div class="split-checkbox-group split-checkboxes-target" style="display: none;"></div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-lime btn-full">Add expense &rarr;</button>
+          </form>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <h2 class="card-title">Expense history</h2>
+            <span class="badge expense-count-badge">0 logged</span>
+          </div>
+
+          <div class="history-empty empty-state">
+            <span>No expenses yet — make the first move.</span>
+          </div>
+          <ul class="history-list-container dynamic-list" style="display: none;"></ul>
+        </section>
+      </div>
+    </div>
+
+    <!-- ROOMMATES VIEW -->
+    <div id="view-roommates" class="view-section">
+      <div style="max-width: 650px; margin: 0 auto;">
+        <section class="card">
+          <div class="card-header">
+            <h2 class="card-title">Manage Roommates</h2>
+            <span class="badge people-count-badge">0 people</span>
+          </div>
+          <p class="subtitle">Add or remove members participating in rental expenses.</p>
+          
+          <div class="card-body-column" style="margin-bottom: 1.5rem;">
+            <div class="people-empty empty-state">
+              <span>No roommates added yet.</span>
+            </div>
+            <div class="people-chips-container people-chips" style="display: none;"></div>
+          </div>
+
+          <form class="add-person-form">
+            <div class="form-group">
+              <label>Roommate Name</label>
+              <input type="text" class="person-name-input" placeholder="Enter roommate name" required />
+            </div>
+            <div class="form-group">
+              <label>Move-in / Rental Entry Date</label>
+              <input type="date" class="person-movein-input" required />
+            </div>
+            <button type="submit" class="btn-lime btn-full">+ Add Roommate</button>
+          </form>
+        </section>
+      </div>
+    </div>
+
+    <!-- SETTINGS VIEW -->
+    <div id="view-settings" class="view-section">
+      <div style="max-width: 600px; margin: 0 auto;">
+        <section class="card">
+          <div class="card-header">
+            <h2 class="card-title">Settings & Preferences</h2>
+          </div>
+          <p class="subtitle">Customize group currency and domain configuration.</p>
+
+          <div class="form-group">
+            <label for="currency-select">Display Currency</label>
+            <select id="currency-select">
+              <option value="₹" selected>INR (₹)</option>
+              <option value="$">USD ($)</option>
+              <option value="€">EUR (€)</option>
+              <option value="£">GBP (£)</option>
+              <option value="¥">JPY (¥)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-top: 1rem;">
+            <label>Domain Status</label>
+            <input type="text" value="https://splitly.com" disabled style="background-color: #eee; cursor: not-allowed;">
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 1.5rem 0;" />
+
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="font-size: 0.9rem; color: #bf391f;">Reset All Data</strong>
+              <p style="font-size: 0.78rem; color: var(--text-muted);">Permanently remove all registered roommates and expenses.</p>
+            </div>
+            <button type="button" id="reset-all-btn" class="btn-nav-outline" style="border-color: #bf391f; color: #bf391f;">Clear All</button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- PAYMENT GATEWAY MODAL -->
+  <div id="payment-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content card">
+      <div class="card-header">
+        <h3 class="card-title">Payment Gateway</h3>
+        <button type="button" class="btn-delete-expense" onclick="closePaymentModal()">&times;</button>
+      </div>
+      <p class="subtitle" id="payment-details-text">Processing transaction...</p>
+      
+      <div class="form-group">
+        <label>Payment Method</label>
+        <select id="payment-method-select">
+          <option value="upi">UPI / Instant Transfer</option>
+          <option value="card">Credit / Debit Card</option>
+          <option value="netbanking">Net Banking</option>
+        </select>
+      </div>
+
+      <button type="button" id="confirm-pay-btn" class="btn-lime btn-full">Pay Now</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
