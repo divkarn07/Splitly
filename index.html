@@ -27,6 +27,7 @@
         <button type="button" class="nav-tab active" data-target="view-dashboard" data-i18n="nav_dashboard">Dashboard</button>
         <button type="button" class="nav-tab" data-target="view-expenses" data-i18n="nav_expenses">Expenses</button>
         <button type="button" class="nav-tab" data-target="view-roommates" data-i18n="nav_roommates">Roommates</button>
+        <button type="button" class="nav-tab" data-target="view-profile" id="nav-profile-tab" style="display: none;" data-i18n="nav_profile">Profile</button>
         <button type="button" class="nav-tab" data-target="view-settings" data-i18n="nav_settings">Settings</button>
       </nav>
 
@@ -36,7 +37,7 @@
           <span class="stat-dot"></span>
           <span id="nav-active-summary">0 People • 0 Expenses</span>
         </div>
-        <button type="button" class="btn-nav-outline" onclick="openAuthModal()" data-i18n="sign_in">Sign In</button>
+        <button type="button" id="auth-action-btn" class="btn-nav-outline" onclick="openAuthModal()" data-i18n="sign_in">Sign In</button>
       </div>
     </div>
   </header>
@@ -45,7 +46,6 @@
     
     <!-- DASHBOARD -->
     <div id="view-dashboard" class="view-section active">
-      <!-- Top Grid -->
       <div class="top-grid">
         <!-- People -->
         <section class="card">
@@ -103,7 +103,6 @@
 
       <!-- Bottom Grid -->
       <div class="bottom-grid" style="margin-top: 1.5rem;">
-        
         <!-- Add an expense -->
         <section class="card">
           <div class="card-header">
@@ -145,7 +144,6 @@
               </div>
             </div>
 
-            <!-- Split Between -->
             <div class="form-group">
               <div class="split-options-header">
                 <label data-i18n="label_split_between">Split between</label>
@@ -286,6 +284,69 @@
       </div>
     </div>
 
+    <!-- PROFILE VIEW -->
+    <div id="view-profile" class="view-section">
+      <div style="max-width: 650px; margin: 0 auto;">
+        <section class="card">
+          <div class="card-header">
+            <h2 class="card-title" data-i18n="title_user_profile">User Account Profile</h2>
+            <span class="badge badge-live" data-i18n="private_profile">Private Profile</span>
+          </div>
+          <p class="subtitle" data-i18n="sub_profile">Manage your personal account details. Visible only to you.</p>
+
+          <form id="profile-details-form">
+            <!-- Drag & Drop Avatar Upload Area -->
+            <div class="profile-avatar-row">
+              <div class="profile-avatar-wrapper">
+                <img id="profile-avatar-preview" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='%23737b70'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>" alt="Profile Picture" />
+              </div>
+              <div class="drag-drop-zone" id="avatar-drop-zone">
+                <input type="file" id="avatar-file-input" accept="image/*" hidden />
+                <div class="drop-zone-prompt">
+                  <span class="drop-icon">📁</span>
+                  <p data-i18n="drop_avatar_text"><strong>Drag & Drop photo here</strong> or click to browse internal storage</p>
+                  <small style="color: var(--text-muted);">PNG, JPG, WebP up to 5MB</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label data-i18n="full_name">Full Name</label>
+                <input type="text" id="profile-name-input" placeholder="Your Name" required />
+              </div>
+              <div class="form-group">
+                <label data-i18n="email">Email Address</label>
+                <input type="email" id="profile-email-input" disabled style="background-color: #eee; cursor: not-allowed;" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label data-i18n="label_phone">Phone Number (India +91)</label>
+                <div class="isd-phone-input">
+                  <span class="isd-prefix">+91</span>
+                  <input type="tel" id="profile-phone-input" placeholder="98765 43210" pattern="[0-9]{10}" maxlength="10" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label data-i18n="label_preferred_currency">Preferred Currency</label>
+                <select id="profile-currency-select">
+                  <option value="₹">INR (₹)</option>
+                  <option value="$">USD ($)</option>
+                  <option value="€">EUR (€)</option>
+                  <option value="£">GBP (£)</option>
+                  <option value="¥">JPY (¥)</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-lime btn-full" data-i18n="btn_save_profile">Save Profile Changes</button>
+          </form>
+        </section>
+      </div>
+    </div>
+
     <!-- SETTINGS VIEW -->
     <div id="view-settings" class="view-section">
       <div style="max-width: 600px; margin: 0 auto;">
@@ -344,7 +405,7 @@
   </div>
 
   <!-- LANGUAGE SELECTION MODAL -->
-  <div id="language-modal" class="modal-overlay">
+  <div id="language-modal" class="modal-overlay" style="display: none;">
     <div class="modal-content card">
       <div class="card-header">
         <h3 class="card-title">Select Language / भाषा चुनें</h3>
@@ -375,11 +436,11 @@
       <form id="login-form" class="auth-form" onsubmit="handleAuthSubmit(event, 'login')">
         <div class="form-group">
           <label data-i18n="email">Email</label>
-          <input type="email" placeholder="alex@example.com" required />
+          <input type="email" id="login-email" placeholder="alex@example.com" required />
         </div>
         <div class="form-group">
           <label data-i18n="password">Password</label>
-          <input type="password" placeholder="••••••••" required />
+          <input type="password" id="login-password" placeholder="••••••••" required />
         </div>
         <button type="submit" class="btn-lime btn-full" data-i18n="sign_in">Sign In</button>
       </form>
@@ -388,15 +449,15 @@
       <form id="signup-form" class="auth-form" style="display: none;" onsubmit="handleAuthSubmit(event, 'signup')">
         <div class="form-group">
           <label data-i18n="full_name">Full Name</label>
-          <input type="text" placeholder="Alex Morgan" required />
+          <input type="text" id="signup-fullname" placeholder="Alex Morgan" required />
         </div>
         <div class="form-group">
           <label data-i18n="email">Email</label>
-          <input type="email" placeholder="alex@example.com" required />
+          <input type="email" id="signup-email" placeholder="alex@example.com" required />
         </div>
         <div class="form-group">
           <label data-i18n="password">Password</label>
-          <input type="password" placeholder="••••••••" required />
+          <input type="password" id="signup-password" placeholder="••••••••" required />
         </div>
         <button type="submit" class="btn-lime btn-full" data-i18n="create_account">Create Account</button>
       </form>
