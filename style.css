@@ -30,7 +30,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Landscape Top Navigation Bar */
+/* Top Navigation Bar */
 .top-navbar {
   background-color: var(--card-bg);
   border-bottom: 1px solid var(--border-card);
@@ -63,7 +63,6 @@ body {
   line-height: 1;
 }
 
-/* Navigation Links */
 .nav-tabs {
   display: flex;
   align-items: center;
@@ -228,6 +227,80 @@ body {
   font-size: 0.82rem;
   color: var(--text-muted);
   margin-bottom: 1.25rem;
+}
+
+/* Profile Elements & Drag/Drop Upload Area */
+.profile-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.profile-avatar-wrapper img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary-accent);
+}
+
+.drag-drop-zone {
+  flex: 1;
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-input);
+  padding: 0.85rem 1rem;
+  background-color: #fafaf8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.drag-drop-zone:hover, .drag-drop-zone.drag-over {
+  border-color: var(--primary-hover);
+  background-color: #f3fad7;
+}
+
+.drop-zone-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.drop-icon {
+  font-size: 1.25rem;
+}
+
+.drop-zone-prompt p {
+  font-size: 0.8rem;
+  color: var(--text-main);
+}
+
+/* India ISD Phone Prefix Field */
+.isd-phone-input {
+  display: flex;
+  align-items: center;
+  background: #fafaf8;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-input);
+  overflow: hidden;
+}
+
+.isd-prefix {
+  padding: 0.65rem 0.75rem;
+  background-color: var(--tag-bg);
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--text-main);
+  border-right: 1px solid var(--border-color);
+  user-select: none;
+}
+
+.isd-phone-input input {
+  border: none;
+  background: transparent;
+  border-radius: 0;
 }
 
 /* Empty States */
@@ -501,7 +574,7 @@ input:focus, select:focus {
   max-width: 420px;
 }
 
-/* Auth Modal Custom Styles */
+/* Auth Modal Tabs */
 .auth-tabs {
   display: flex;
   background-color: var(--tag-bg);
