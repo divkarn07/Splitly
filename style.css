@@ -54,16 +54,6 @@ body {
   flex-direction: column;
 }
 
-.nav-group-label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #618349;
-  line-height: 1;
-  margin-bottom: 0.2rem;
-}
-
 .brand-title {
   font-family: 'Playfair Display', serif;
   font-size: 1.65rem;
@@ -509,4 +499,38 @@ input:focus, select:focus {
 .modal-content {
   width: 90%;
   max-width: 420px;
+}
+
+/* Auth Modal Custom Styles */
+.auth-tabs {
+  display: flex;
+  background-color: var(--tag-bg);
+  border-radius: var(--radius-input);
+  padding: 0.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.auth-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-tab-btn.active {
+  background-color: var(--card-bg);
+  color: var(--text-main);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
 }
