@@ -1,6 +1,6 @@
 // Database Configuration
 const DB_NAME = 'SplitlyDB';
-const DB_VERSION = 1;
+const DB_VERSION = 3;
 let db = null;
 
 // App State
@@ -9,17 +9,17 @@ let expenses = [];
 let currencySymbol = '₹';
 let activePayment = null;
 let currentLang = 'en';
+let currentUser = null;
+let uploadedAvatarDataUrl = '';
 
-// Comprehensive Translations Dictionary
+// Translations Dictionary
 const translations = {
   en: {
-    // Navigation
     nav_dashboard: "Dashboard",
     nav_expenses: "Expenses",
     nav_roommates: "Roommates",
+    nav_profile: "Profile",
     nav_settings: "Settings",
-    
-    // Titles & Sections
     title_people: "People & Move-in Dates",
     empty_people: "Add people to start splitting.",
     label_movein: "Move-in / Rental Entry Date",
@@ -50,18 +50,29 @@ const translations = {
     sub_reset: "Permanently remove all registered roommates and expenses.",
     btn_clear_all: "Clear All",
 
-    // Auth & Modals
     auth_welcome: "Welcome to Splitly",
     sign_in: "Sign In",
     sign_up: "Sign Up",
+    sign_out: "Sign Out",
     email: "Email",
     password: "Password",
     full_name: "Full Name",
     create_account: "Create Account",
     logged_in: "Successfully logged in!",
-    signed_up: "Account created successfully!",
+    signed_up: "Account created successfully! You can now log in.",
+    auth_required_signup: "Account does not exist! Please sign up first.",
+    auth_invalid_creds: "Invalid email or password.",
+    user_exists: "An account with this email already exists. Please sign in.",
+
+    title_user_profile: "User Account Profile",
+    private_profile: "Private Profile",
+    sub_profile: "Manage your personal account details. Visible only to you.",
+    drop_avatar_text: "Drag & Drop photo here or click to browse internal storage",
+    label_phone: "Phone Number (India +91)",
+    label_preferred_currency: "Preferred Currency",
+    btn_save_profile: "Save Profile Changes",
+    profile_updated: "Profile updated successfully!",
     
-    // Dynamic Labels & Actions
     select_all: "Select all",
     deselect_all: "Deselect all",
     settle_now: "Settle Now",
@@ -77,22 +88,19 @@ const translations = {
     date: "Date",
     paid_by: "Paid by",
     split: "Split",
-    delete_confirm: "Are you sure you want to reset all data?",
+    delete_confirm: "Are you sure you want to reset all data for this account?",
     payment_success: "Payment successful!",
     
-    // Dynamic Split Options
     equal_split: "Equal (=)",
     unequal_split: "Unequal (Exact Amounts)",
     percentage_split: "Percentage (%)"
   },
   hi: {
-    // Navigation
     nav_dashboard: "डैशबोर्ड",
     nav_expenses: "खर्च",
     nav_roommates: "कमरे के साथी",
+    nav_profile: "प्रोफ़ाइल",
     nav_settings: "सेटिंग्स",
-    
-    // Titles & Sections
     title_people: "लोग और प्रवेश तिथियां",
     empty_people: "विभाजन शुरू करने के लिए लोगों को जोड़ें।",
     label_movein: "प्रवेश / किराया प्रवेश तिथि",
@@ -123,18 +131,29 @@ const translations = {
     sub_reset: "सभी पंजीकृत साथियों और खर्चों को स्थायी रूप से हटाएं।",
     btn_clear_all: "सब साफ करें",
 
-    // Auth & Modals
     auth_welcome: "स्प्लिटली में आपका स्वागत है",
     sign_in: "साइन इन करें",
     sign_up: "साइन अप करें",
+    sign_out: "साइन आउट",
     email: "ईमेल",
     password: "पासवर्ड",
     full_name: "पूरा नाम",
     create_account: "खाता बनाएं",
     logged_in: "सफलतापूर्वक लॉग इन किया गया!",
-    signed_up: "खाता सफलतापूर्वक बनाया गया!",
-    
-    // Dynamic Labels & Actions
+    signed_up: "खाता सफलतापूर्वक बनाया गया! अब आप लॉग इन कर सकते हैं।",
+    auth_required_signup: "खाता मौजूद नहीं है! कृपया पहले साइन अप करें।",
+    auth_invalid_creds: "अमान्य ईमेल या पासवर्ड।",
+    user_exists: "इस ईमेल का खाता पहले से मौजूद है। कृपया साइन इन करें।",
+
+    title_user_profile: "उपयोगकर्ता खाता प्रोफ़ाइल",
+    private_profile: "निजी प्रोफ़ाइल",
+    sub_profile: "अपने व्यक्तिगत विवरण प्रबंधित करें। केवल आपको दिखाई देंगे।",
+    drop_avatar_text: "फोटो यहां ड्रैग एंड ड्रॉप करें या स्टोरेज से चुनें",
+    label_phone: "फ़ोन नंबर (भारत +91)",
+    label_preferred_currency: "पसंदीदा मुद्रा",
+    btn_save_profile: "प्रोफ़ाइल परिवर्तन सहेजें",
+    profile_updated: "प्रोफ़ाइल सफलतापूर्वक अपडेट की गई!",
+
     select_all: "सभी चुनें",
     deselect_all: "सभी हटाएं",
     settle_now: "अभी चुकाएं",
@@ -150,10 +169,9 @@ const translations = {
     date: "तिथि",
     paid_by: "भुगतानकर्ता",
     split: "बंटवारा",
-    delete_confirm: "क्या आप वाकई सारा डेटा रीसेट करना चाहते हैं?",
+    delete_confirm: "क्या आप वाकई इस खाते का सारा डेटा रीसेट करना चाहते हैं?",
     payment_success: "भुगतान सफल रहा!",
 
-    // Dynamic Split Options
     equal_split: "बराबर (=)",
     unequal_split: "असमान (सटीक राशि)",
     percentage_split: "प्रतिशत (%)"
@@ -167,7 +185,7 @@ function initDB() {
 
     request.onupgradeneeded = (event) => {
       const dbInstance = event.target.result;
-      
+
       if (!dbInstance.objectStoreNames.contains('people')) {
         dbInstance.createObjectStore('people', { keyPath: 'id', autoIncrement: true });
       }
@@ -176,6 +194,9 @@ function initDB() {
       }
       if (!dbInstance.objectStoreNames.contains('settings')) {
         dbInstance.createObjectStore('settings', { keyPath: 'key' });
+      }
+      if (!dbInstance.objectStoreNames.contains('users')) {
+        dbInstance.createObjectStore('users', { keyPath: 'email' });
       }
     };
 
@@ -202,6 +223,16 @@ function dbGetAll(storeName) {
   });
 }
 
+function dbGet(storeName, key) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, 'readonly');
+    const store = tx.objectStore(storeName);
+    const request = store.get(key);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
 function dbAdd(storeName, data) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(storeName, 'readwrite');
@@ -222,16 +253,6 @@ function dbDelete(storeName, key) {
   });
 }
 
-function dbClear(storeName) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(storeName, 'readwrite');
-    const store = tx.objectStore(storeName);
-    const request = store.clear();
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
-}
-
 function dbPut(storeName, data) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(storeName, 'readwrite');
@@ -242,46 +263,217 @@ function dbPut(storeName, data) {
   });
 }
 
-// DOM Elements & Initial Setup
+// DOM Initialization
 document.addEventListener('DOMContentLoaded', async () => {
   const today = new Date().toISOString().split('T')[0];
   document.querySelectorAll('input[type="date"]').forEach(input => input.value = today);
 
   await initDB();
+
+  // Check saved active user session
+  const savedUserEmail = localStorage.getItem('splitly_active_user');
+  if (savedUserEmail) {
+    const user = await dbGet('users', savedUserEmail);
+    if (user) {
+      currentUser = user;
+    }
+  }
+
+  // 1. Skip language selection popup if user is logged in
+  const languageModal = document.getElementById('language-modal');
+  if (currentUser) {
+    languageModal.style.display = 'none';
+  } else {
+    languageModal.style.display = 'flex';
+  }
+
+  setupAvatarDragAndDrop();
+  updateAuthUI();
   await loadStateFromDB();
 });
 
+// Load Data Linked strictly to Logged-in Account
 async function loadStateFromDB() {
-  people = await dbGetAll('people');
-  expenses = await dbGetAll('expenses');
-  
-  const savedCurrency = await dbGetAll('settings');
-  const currencySetting = savedCurrency.find(s => s.key === 'currencySymbol');
-  if (currencySetting) {
-    currencySymbol = currencySetting.value;
-    const currencySelect = document.getElementById('currency-select');
-    if (currencySelect) currencySelect.value = currencySymbol;
+  if (!currentUser) {
+    people = [];
+    expenses = [];
+    currencySymbol = '₹';
+    updatePeopleUI();
+    renderHistory();
+    recalculate();
+    return;
   }
 
+  const userEmail = currentUser.email;
+
+  const allPeople = await dbGetAll('people');
+  people = allPeople.filter(p => p.userEmail === userEmail);
+
+  const allExpenses = await dbGetAll('expenses');
+  expenses = allExpenses.filter(e => e.userEmail === userEmail);
+
+  const savedSettings = await dbGet('settings', `currency_${userEmail}`);
+  if (savedSettings) {
+    currencySymbol = savedSettings.value;
+  } else if (currentUser.preferredCurrency) {
+    currencySymbol = currentUser.preferredCurrency;
+  } else {
+    currencySymbol = '₹';
+  }
+
+  const currencySelect = document.getElementById('currency-select');
+  if (currencySelect) currencySelect.value = currencySymbol;
+
+  populateProfileForm();
   updatePeopleUI();
   renderHistory();
   recalculate();
 }
 
-// --- LANGUAGE & AUTH SYSTEM ---
+// --- DRAG & DROP / FILE STORAGE AVATAR HANDLER ---
+
+function setupAvatarDragAndDrop() {
+  const dropZone = document.getElementById('avatar-drop-zone');
+  const fileInput = document.getElementById('avatar-file-input');
+
+  if (!dropZone || !fileInput) return;
+
+  dropZone.addEventListener('click', () => fileInput.click());
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.add('drag-over');
+    }, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.remove('drag-over');
+    }, false);
+  });
+
+  dropZone.addEventListener('drop', (e) => {
+    const files = e.dataTransfer.files;
+    if (files.length > 0) processAvatarFile(files[0]);
+  });
+
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) processAvatarFile(e.target.files[0]);
+  });
+}
+
+function processAvatarFile(file) {
+  if (!file.type.startsWith('image/')) {
+    alert('Please select a valid image file.');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    uploadedAvatarDataUrl = e.target.result;
+    document.getElementById('profile-avatar-preview').src = uploadedAvatarDataUrl;
+  };
+  reader.readAsDataURL(file);
+}
+
+// --- AUTHENTICATION & USER PROFILE ---
+
+function updateAuthUI() {
+  const dict = translations[currentLang] || translations.en;
+  const authBtn = document.getElementById('auth-action-btn');
+  const profileTab = document.getElementById('nav-profile-tab');
+
+  if (currentUser) {
+    authBtn.textContent = dict.sign_out;
+    authBtn.onclick = handleSignOut;
+    profileTab.style.display = 'inline-block';
+  } else {
+    authBtn.textContent = dict.sign_in;
+    authBtn.onclick = openAuthModal;
+    profileTab.style.display = 'none';
+  }
+}
+
+function populateProfileForm() {
+  if (!currentUser) return;
+  document.getElementById('profile-name-input').value = currentUser.fullName || '';
+  document.getElementById('profile-email-input').value = currentUser.email || '';
+  
+  // 3. Indian ISD (+91) Phone representation logic
+  let phoneNum = currentUser.phone || '';
+  if (phoneNum.startsWith('+91')) {
+    phoneNum = phoneNum.replace('+91', '').trim();
+  }
+  document.getElementById('profile-phone-input').value = phoneNum;
+
+  document.getElementById('profile-currency-select').value = currentUser.preferredCurrency || currencySymbol;
+  
+  const defaultAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='%23737b70'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>";
+  
+  uploadedAvatarDataUrl = currentUser.avatarUrl || defaultAvatar;
+  document.getElementById('profile-avatar-preview').src = uploadedAvatarDataUrl;
+}
+
+document.getElementById('profile-details-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const dict = translations[currentLang] || translations.en;
+  if (!currentUser) return;
+
+  const phoneRaw = document.getElementById('profile-phone-input').value.trim();
+
+  currentUser.fullName = document.getElementById('profile-name-input').value.trim();
+  // Format with India ISD prefix (+91)
+  currentUser.phone = phoneRaw ? `+91 ${phoneRaw}` : '';
+  currentUser.preferredCurrency = document.getElementById('profile-currency-select').value;
+  currentUser.avatarUrl = uploadedAvatarDataUrl;
+
+  await dbPut('users', currentUser);
+
+  currencySymbol = currentUser.preferredCurrency;
+  await dbPut('settings', { key: `currency_${currentUser.email}`, value: currencySymbol });
+  document.getElementById('currency-select').value = currencySymbol;
+
+  alert(dict.profile_updated);
+  renderHistory();
+  recalculate();
+});
+
+function handleSignOut() {
+  localStorage.removeItem('splitly_active_user');
+  currentUser = null;
+  updateAuthUI();
+
+  people = [];
+  expenses = [];
+
+  updatePeopleUI();
+  renderHistory();
+  recalculate();
+
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+  document.querySelector('[data-target="view-dashboard"]').classList.add('active');
+  document.getElementById('view-dashboard').classList.add('active');
+}
 
 window.selectLanguage = function(lang) {
   currentLang = lang;
   applyTranslations(lang);
 
   document.getElementById('language-modal').style.display = 'none';
-  openAuthModal();
+
+  if (!currentUser) {
+    openAuthModal();
+  }
 };
 
 function applyTranslations(lang) {
   const dict = translations[lang] || translations.en;
   
-  // Standard Data-I18N text elements
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     if (dict[key]) {
@@ -289,14 +481,13 @@ function applyTranslations(lang) {
     }
   });
 
-  // Dynamic dropdown options for split type
   document.querySelectorAll('.split-type-select').forEach(select => {
     if (select.options[0]) select.options[0].text = dict.equal_split;
     if (select.options[1]) select.options[1].text = dict.unequal_split;
     if (select.options[2]) select.options[2].text = dict.percentage_split;
   });
 
-  // Re-render UI elements to reflect language changes
+  updateAuthUI();
   updatePeopleUI();
   renderHistory();
   recalculate();
@@ -329,20 +520,71 @@ window.switchAuthTab = function(type) {
   }
 };
 
-window.handleAuthSubmit = function(event, type) {
+window.handleAuthSubmit = async function(event, type) {
   event.preventDefault();
   const dict = translations[currentLang] || translations.en;
   
   if (type === 'login') {
+    const email = document.getElementById('login-email').value.trim().toLowerCase();
+    const password = document.getElementById('login-password').value;
+
+    const user = await dbGet('users', email);
+
+    if (!user) {
+      alert(dict.auth_required_signup);
+      switchAuthTab('signup');
+      document.getElementById('signup-email').value = email;
+      return;
+    }
+
+    if (user.password !== password) {
+      alert(dict.auth_invalid_creds);
+      return;
+    }
+
+    currentUser = user;
+    localStorage.setItem('splitly_active_user', user.email);
+    
+    // Ensure Language Modal stays closed on login
+    document.getElementById('language-modal').style.display = 'none';
+
+    updateAuthUI();
+    await loadStateFromDB();
     alert(dict.logged_in);
+
   } else {
+    const fullName = document.getElementById('signup-fullname').value.trim();
+    const email = document.getElementById('signup-email').value.trim().toLowerCase();
+    const password = document.getElementById('signup-password').value;
+
+    const existingUser = await dbGet('users', email);
+    if (existingUser) {
+      alert(dict.user_exists);
+      switchAuthTab('login');
+      document.getElementById('login-email').value = email;
+      return;
+    }
+
+    const newUser = {
+      email,
+      password,
+      fullName,
+      phone: '',
+      preferredCurrency: currencySymbol,
+      avatarUrl: ''
+    };
+
+    await dbAdd('users', newUser);
     alert(dict.signed_up);
+    switchAuthTab('login');
+    document.getElementById('login-email').value = email;
+    return;
   }
 
   closeAuthModal();
 };
 
-// --- CORE APP LOGIC ---
+// --- EXPENSE MANAGEMENT UI LOGIC ---
 
 const navTabs = document.querySelectorAll('.nav-tab');
 const viewSections = document.querySelectorAll('.view-section');
@@ -350,7 +592,6 @@ const navSummary = document.getElementById('nav-active-summary');
 const resetBtn = document.getElementById('reset-all-btn');
 const currencySelect = document.getElementById('currency-select');
 
-// Tab Switching
 navTabs.forEach(tab => {
   tab.addEventListener('click', () => {
     const targetId = tab.getAttribute('data-target');
@@ -363,21 +604,34 @@ navTabs.forEach(tab => {
   });
 });
 
-// Currency Switcher
 currencySelect.addEventListener('change', async (e) => {
+  if (!currentUser) return;
   currencySymbol = e.target.value;
-  await dbPut('settings', { key: 'currencySymbol', value: currencySymbol });
+  await dbPut('settings', { key: `currency_${currentUser.email}`, value: currencySymbol });
+  currentUser.preferredCurrency = currencySymbol;
+  await dbPut('users', currentUser);
   renderHistory();
   recalculate();
 });
 
-// Reset Handler
 resetBtn.addEventListener('click', async () => {
   const dict = translations[currentLang] || translations.en;
+  if (!currentUser) return;
   if (people.length === 0 && expenses.length === 0) return;
+
   if (confirm(dict.delete_confirm)) {
-    await dbClear('people');
-    await dbClear('expenses');
+    const userEmail = currentUser.email;
+
+    const allPeople = await dbGetAll('people');
+    for (let p of allPeople) {
+      if (p.userEmail === userEmail) await dbDelete('people', p.id);
+    }
+
+    const allExpenses = await dbGetAll('expenses');
+    for (let e of allExpenses) {
+      if (e.userEmail === userEmail) await dbDelete('expenses', e.id);
+    }
+
     people = [];
     expenses = [];
     updatePeopleUI();
@@ -391,17 +645,21 @@ function updateNavbar() {
   navSummary.textContent = `${people.length} ${dict.people_unit} • ${expenses.length} ${dict.logged_unit}`;
 }
 
-// Add Person Forms
 document.querySelectorAll('.add-person-form').forEach(form => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (!currentUser) {
+      openAuthModal();
+      return;
+    }
+
     const nameInput = form.querySelector('.person-name-input');
     const moveInInput = form.querySelector('.person-movein-input');
     const name = nameInput.value.trim();
     const moveInDate = moveInInput.value;
 
     if (name && !people.some(p => p.name === name)) {
-      const personData = { name, moveInDate };
+      const personData = { name, moveInDate, userEmail: currentUser.email };
       const generatedId = await dbAdd('people', personData);
       personData.id = generatedId;
       people.push(personData);
@@ -413,12 +671,11 @@ document.querySelectorAll('.add-person-form').forEach(form => {
   });
 });
 
-// Remove Person
 window.removePerson = async function(name) {
+  if (!currentUser) return;
+
   const targetPerson = people.find(p => p.name === name);
-  if (targetPerson) {
-    await dbDelete('people', targetPerson.id);
-  }
+  if (targetPerson) await dbDelete('people', targetPerson.id);
 
   people = people.filter(p => p.name !== name);
 
@@ -447,7 +704,6 @@ window.removePerson = async function(name) {
   recalculate();
 };
 
-// Delete Single Expense Entry
 window.deleteExpense = async function(id) {
   await dbDelete('expenses', id);
   expenses = expenses.filter(e => e.id !== id);
@@ -467,7 +723,6 @@ window.toggleSplitPill = function(labelEl) {
   }
 };
 
-// Toggle Select All/None
 document.querySelectorAll('.toggle-all-split').forEach(btn => {
   btn.addEventListener('click', () => {
     const dict = translations[currentLang] || translations.en;
@@ -565,10 +820,14 @@ function updatePeopleUI() {
   }
 }
 
-// Expense Form Submissions
 document.querySelectorAll('.expense-entry-form').forEach(form => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (!currentUser) {
+      openAuthModal();
+      return;
+    }
+
     const desc = form.querySelector('.expense-desc-input').value.trim();
     const amount = parseFloat(form.querySelector('.expense-amount-input').value);
     const payer = form.querySelector('.expense-payer-select').value;
@@ -612,7 +871,16 @@ document.querySelectorAll('.expense-entry-form').forEach(form => {
       }
     }
 
-    const newExpense = { desc, amount, payer, date, splitType, shares };
+    const newExpense = { 
+      desc, 
+      amount, 
+      payer, 
+      date, 
+      splitType, 
+      shares, 
+      userEmail: currentUser.email 
+    };
+
     const generatedId = await dbAdd('expenses', newExpense);
     newExpense.id = generatedId;
 
@@ -667,7 +935,6 @@ function renderHistory() {
   }
 }
 
-// Balance Calculation & Debt Minimization
 function recalculate() {
   const dict = translations[currentLang] || translations.en;
 
@@ -774,9 +1041,7 @@ function recalculate() {
   }
 }
 
-// Payment Gateway Handlers
 window.openPaymentGateway = function(from, to, amount) {
-  const dict = translations[currentLang] || translations.en;
   activePayment = { from, to, amount };
   document.getElementById('payment-details-text').innerText = `${from} → ${to}: ${currencySymbol}${amount}`;
   document.getElementById('payment-modal').style.display = 'flex';
@@ -789,7 +1054,8 @@ window.closePaymentModal = function() {
 
 document.getElementById('confirm-pay-btn').addEventListener('click', async () => {
   const dict = translations[currentLang] || translations.en;
-  if (!activePayment) return;
+  if (!activePayment || !currentUser) return;
+
   alert(`${dict.payment_success} (${currencySymbol}${activePayment.amount})`);
   
   const settlementExpense = {
@@ -798,7 +1064,8 @@ document.getElementById('confirm-pay-btn').addEventListener('click', async () =>
     payer: activePayment.from,
     date: new Date().toISOString().split('T')[0],
     splitType: 'equal',
-    shares: { [activePayment.to]: parseFloat(activePayment.amount) }
+    shares: { [activePayment.to]: parseFloat(activePayment.amount) },
+    userEmail: currentUser.email
   };
 
   const generatedId = await dbAdd('expenses', settlementExpense);
